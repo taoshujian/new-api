@@ -1,0 +1,54 @@
+# New-API 独立部署（本地构建 + 外部 Redis/MySQL）
+#
+# 前置条件：
+#   1. 已单独启动 tsj-redis（宿主机 6380 → 容器 6379，密码 123456）
+#   2. 已单独启动 tsj-mysql（宿主机 3307 → 容器 3306，root 密码 123456）
+#   3. MySQL 中已创建数据库：CREATE DATABASE `new-api` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+#
+# 启动：
+#   docker compose -f docker-compose.alone.yml up -d --build
+#
+# 重新构建（代码变更后）：
+#   docker compose -f docker-compose.alone.yml up -d --build new-api
+#
+# 构建依赖下载走国内镜像（GOPROXY / npmmirror），可在下方 build.args 中修改
+#
+# 访问：http://localhost:8080
+
+services:
+  new-api:
+    build:
+      context: .
+      # 使用 Dockerfile.alone：国内 Go/npm 镜像源，避免 proxy.golang.org 连接失败
+      dockerfile: Dockerfile.alone
+      args:
+        GOPROXY: https://goproxy.cn,direct
+        # GOPROXY: https://goproxy.io,direct
+        # GOPROXY: https://mirrors.aliyun.com/goproxy/,direct
+        GOSUMDB: sum.golang.google.cn
+    image: new-api:alone-local
+    pull_policy: build
+    container_name: new-api-alone
+    restart: unless-stopped
+    command: --log-dir /app/logs
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    environment:
+      # 连接宿主机上 tsj-mysql（3307）与 tsj-redis（6380）
+      - SQL_DSN=root:123456@tcp(host.docker.internal:3307)/new-api
+      - REDIS_CONN_STRING=redis://:123456@host.docker.internal:6380
+      - TZ=Asia/Shanghai
+      - ERROR_LOG_ENABLED=true
+      - BATCH_UPDATE_ENABLED=true
+      - NODE_NAME=new-api-alone
+    extra_hosts:
+      # Linux 下访问宿主机服务；Windows/macOS Docker Desktop 同样兼容
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

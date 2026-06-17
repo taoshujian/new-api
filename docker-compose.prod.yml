@@ -1,0 +1,55 @@
+# New-API 生产部署（仅运行，不构建）
+#
+# 适用场景：在构建机/本机构建好镜像后，导入到生产服务器直接运行。
+#
+# 前置条件：
+#   1. 已导入镜像（构建机执行 docker save，生产机执行 docker load）：
+#        docker load -i new-api-alone-local.tar
+#      确认：docker images new-api:alone-local
+#   2. 宿主机已单独运行 MySQL、Redis（或改为容器内/其他地址，见下方 environment）
+#   3. MySQL 已建库：
+#        CREATE DATABASE `new-api` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+#
+# 部署目录建议：/opt/new-api/
+#   ├── docker-compose.prod.yml
+#   ├── data/
+#   └── logs/
+#
+# 启动：
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# 升级镜像（导入新 tar 后）：
+#   docker compose -f docker-compose.prod.yml up -d --force-recreate
+#
+# 访问：http://<服务器IP>:8080
+#
+# ⚠️ 生产环境请修改 SQL_DSN、REDIS_CONN_STRING 中的密码，并设置 SESSION_SECRET（多实例时必改）
+
+services:
+  new-api:
+    image: new-api:alone-local
+    pull_policy: never
+    container_name: new-api-alone
+    restart: unless-stopped
+    command: --log-dir /app/logs
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    environment:
+      # 连接宿主机 MySQL / Redis；端口与密码按实际环境修改
+      - SQL_DSN=root:123456@tcp(host.docker.internal:3307)/new-api
+      - REDIS_CONN_STRING=redis://:123456@host.docker.internal:6380
+      - TZ=Asia/Shanghai
+      - ERROR_LOG_ENABLED=true
+      - BATCH_UPDATE_ENABLED=true
+      - NODE_NAME=new-api-prod
+#      - SESSION_SECRET=请改为随机长字符串
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
