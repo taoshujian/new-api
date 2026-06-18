@@ -228,6 +228,11 @@ func ProcessAliOtherRatios(aliReq *AliVideoRequest) (map[string]float64, error) 
 			"480P": 1,
 			"720P": 0.9 / 0.5,
 		},
+		// wan2.7-t2v：720P 0.6 元/秒（基准），1080P 1 元/秒
+		"wan2.7-t2v": {
+			"720P":  1,
+			"1080P": 1 / 0.6,
+		},
 	}
 	var resolution string
 

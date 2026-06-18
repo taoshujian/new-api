@@ -314,6 +314,8 @@ var defaultModelPrice = map[string]float64{
 	"veo-3.0-fast-generate-001":      0.15,
 	"veo-3.1-generate-preview":       0.4,
 	"veo-3.1-fast-generate-preview":  0.15,
+	// wan2.7-t2v：基础单价按 720P 每秒 0.6 元计，1080P 通过分辨率倍率 1/0.6 调整为每秒 1 元
+	"wan2.7-t2v": 0.6,
 }
 
 var defaultAudioRatio = map[string]float64{
