@@ -52,6 +52,9 @@ import (
 )
 
 func GetAdaptor(apiType int) channel.Adaptor {
+	if override := getAdaptorOverride(apiType); override != nil {
+		return override
+	}
 	switch apiType {
 	case constant.APITypeAli:
 		return &ali.Adaptor{}
