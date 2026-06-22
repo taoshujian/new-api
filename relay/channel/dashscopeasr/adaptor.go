@@ -117,7 +117,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycom
 		responseFormat = "json"
 	}
 
-	usageDTO, handleErr := asr.HandleSyncResponse(c, resp.StatusCode, body, responseFormat)
+	usageDTO, handleErr := asr.HandleSyncResponse(c, info, resp.StatusCode, body, responseFormat, info.UpstreamRequestBodySize)
 	if handleErr != nil {
 		statusCode := http.StatusBadGateway
 		if resp.StatusCode >= 400 {

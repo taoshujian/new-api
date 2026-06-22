@@ -8,11 +8,12 @@ import (
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/logger"
+	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/gin-gonic/gin"
 )
 
 // HandleSyncResponse 解析百炼同步响应并写回 OpenAI 兼容格式。
-func HandleSyncResponse(c *gin.Context, statusCode int, body []byte, responseFormat string) (*dto.Usage, error) {
+func HandleSyncResponse(c *gin.Context, info *relaycommon.RelayInfo, statusCode int, body []byte, responseFormat string, fileSize int64) (*dto.Usage, error) {
 	logger.LogDebug(c, "[dashscopeasr] 上游响应 status=%d bodyBytes=%d", statusCode, len(body))
 
 	if statusCode != http.StatusOK {
@@ -44,7 +45,11 @@ func HandleSyncResponse(c *gin.Context, statusCode int, body []byte, responseFor
 	}
 
 	c.Data(http.StatusOK, contentType, responseBytes)
-	usage := BuildUsageFromDuration(syncResp.Usage.Duration)
+	usage := BuildUsageForBilling(info, syncResp.Usage.Duration, fileSize)
+	if info != nil && info.PriceData.UsePrice {
+		logger.LogInfo(c, fmt.Sprintf("[dashscopeasr] 按秒结算 seconds=%d modelPrice=%.8f",
+			normalizeBillingSeconds(syncResp.Usage.Duration), info.PriceData.ModelPrice))
+	}
 	return usage, nil
 }
 

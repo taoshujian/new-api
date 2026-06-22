@@ -156,6 +156,11 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 		return
 	}
 
+	if adjErr := relay.ApplyPreConsumeAdjusters(c, relayInfo); adjErr != nil {
+		newAPIError = types.NewError(adjErr, types.ErrorCodeModelPriceError, types.ErrOptionWithStatusCode(http.StatusBadRequest))
+		return
+	}
+
 	// common.SetContextKey(c, constant.ContextKeyTokenCountMeta, meta)
 
 	if priceData.FreeModel {

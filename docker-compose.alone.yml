@@ -26,7 +26,7 @@ services:
         # GOPROXY: https://goproxy.io,direct
         # GOPROXY: https://mirrors.aliyun.com/goproxy/,direct
         GOSUMDB: sum.golang.google.cn
-    image: new-api:alone
+    image: new-api:alone-0.0.1
     pull_policy: build
     container_name: new-api-alone
     restart: unless-stopped

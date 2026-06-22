@@ -2,6 +2,7 @@ package dashscopeasr
 
 import (
 	"github.com/QuantumNous/new-api/constant"
+	asr "github.com/QuantumNous/new-api/pkg/dashscopeasr"
 	"github.com/QuantumNous/new-api/relay"
 	"github.com/QuantumNous/new-api/relay/channel"
 )
@@ -11,4 +12,6 @@ func init() {
 	relay.RegisterAdaptorOverride(constant.APITypeAli, func() channel.Adaptor {
 		return NewAdaptor()
 	})
+	// 按秒预扣费：model_price 为每秒单价，OtherRatios["seconds"] 与视频 Task 一致。
+	relay.RegisterPreConsumeAdjuster(asr.AdjustPreConsume)
 }
