@@ -38,13 +38,16 @@ services:
       - ./data:/data
       - ./logs:/app/logs
     environment:
-      # 连接宿主机 MySQL / Redis；端口与密码按实际环境修改
+      # 连接容器 MySQL / Redis；端口与密码按实际环境修改
       - SQL_DSN=root:123456@tcp(host.docker.internal:3306)/new-api
       - REDIS_CONN_STRING=redis://:123456@host.docker.internal:6379
       - TZ=Asia/Shanghai
       - ERROR_LOG_ENABLED=true
       - BATCH_UPDATE_ENABLED=true
       - NODE_NAME=new-api-prod
+      - CRITICAL_RATE_LIMIT_ENABLE=true
+      - CRITICAL_RATE_LIMIT=200
+      - CRITICAL_RATE_LIMIT_DURATION=1200
 #      - SESSION_SECRET=请改为随机长字符串
     extra_hosts:
       - "host.docker.internal:host-gateway"
