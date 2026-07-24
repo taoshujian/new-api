@@ -1,0 +1,92 @@
+# .codexignore - files/directories to exclude from Codex context to save tokens
+# Syntax: gitignore-style patterns
+
+# Git metadata
+.git
+.gitattributes
+
+# IDE / editor
+.idea
+.vscode
+.zed
+.history
+
+# Build artifacts and compiled binaries
+*.exe
+*.tar
+*.tar.gz
+*.zip
+*.db
+*.db-journal
+new-api
+one-api
+new-api.exe
+new-api-alone.tar
+new-api-alone-0.0.1.tar
+new-api-alone-0.0.2.tar
+build/
+dist/
+web/default/dist
+web/classic/dist
+web/dist
+
+# Runtime / generated data
+upload/
+logs/
+logs
+data/
+tiktoken_cache/
+*.log
+
+# Cache directories
+.cache
+.gocache
+.gocache-temp
+.gomodcache/
+.gopath
+.eslintcache
+.DS_Store
+
+# Dependency directories
+web/node_modules
+web/default/node_modules
+web/classic/node_modules
+electron/node_modules
+
+# Lock files (large, low-signal for code context)
+go.sum
+web/bun.lock
+web/default/package-lock.json
+web/classic/package-lock.json
+electron/package-lock.json
+
+# Environment and secrets
+.env
+
+# Electron assets (binary images, not source)
+electron/*.png
+electron/*.icns
+
+# Documentation images and verbose legal/readme translations
+docs/images/
+docs/channel/
+README.en.md
+README.fr.md
+README.ja.md
+README.zh_CN.md
+README.zh_TW.md
+THIRD-PARTY-LICENSES.md
+LICENSE
+NOTICE
+
+# Misc binary/config artifacts
+new-api.service
+VERSION
+.playwright-mcp
+.claude
+.cursor
+
+# Test cache artifacts
+.test
+token_estimator_test.go
+plans/
